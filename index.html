@@ -74,6 +74,9 @@
       const cube = (window.cube = new THREE.Mesh(geometry, material));
       scene.add(cube);
 
+      const gui = new GUI();
+      gui.add(cube.position, 'y', -2, 2, 0.01).name('object y');
+
       // https://threejs.org/docs/index.html?q=box#api/en/core/BufferGeometry
       // https://github.com/mrdoob/three.js/issues/10746
       // add slider to this value to see the order?
@@ -87,8 +90,6 @@
       };
 
       let position = cube.geometry.getAttribute('position');
-
-      const gui = new GUI();
 
       // box has a height/tickness, so move two vertices per corner, each vertex shares 3 faces
       gui.add(cornerY, 'A', -2, 2, 0.01).onChange(function (val) {
