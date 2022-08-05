@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Corners</title>
+    <style>
+      body {
+        margin: 0;
+        background-color: #000;
+        color: #fff;
+        font-size: 13px;
+        line-height: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+
+    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.143.0/build/three.module.js"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from 'three';
+      import { OrbitControls } from 'https://unpkg.com/three@0.143.0/examples/jsm/controls/OrbitControls.js';
+      import { GUI } from 'https://unpkg.com/three@0.143.0/examples/jsm/libs/lil-gui.module.min.js';
+
+      const container = document.getElementById('container');
+
+      const scene = new THREE.Scene();
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      container.appendChild(renderer.domElement);
+
+      renderer.setClearColor('#222', 1);
+
+      const camera = new THREE.PerspectiveCamera(
+        50,
+        window.innerWidth / window.innerHeight,
+        0.01,
+        1000
+      );
+      camera.position.set(2, 2, 3);
+      camera.lookAt(new THREE.Vector3());
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+
+      const gridHelper = new THREE.GridHelper(5, 10, 0x888888, 0x444444);
+      scene.add(gridHelper);
+
+      const dLight1 = new THREE.DirectionalLight(0xffffff, 0.5);
+      dLight1.position.set(1, 1, 1);
+      scene.add(dLight1);
+
+      const dLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+      dLight2.position.set(-1, 0.5, -0.8);
+      scene.add(dLight2);
+
+      // -----------------------------------------------------------------------------------
+
+      let height = 0.1;
+      const geometry = new THREE.BoxGeometry(2, height, 1);
+      const material = new THREE.MeshPhongMaterial({ color: 0xcccccc, side: THREE.DoubleSide });
+      const cube = (window.cube = new THREE.Mesh(geometry, material));
+      scene.add(cube);
+
+      // https://threejs.org/docs/index.html?q=box#api/en/core/BufferGeometry
+      // https://github.com/mrdoob/three.js/issues/10746
+      // add slider to this value to see the order?
+      // cube.geometry.setDrawRange( start, count );
+
+      const cornerY = {
+        A: 0,
+        B: 0,
+        C: 0,
+        D: 0,
+      };
+
+      let position = cube.geometry.getAttribute('position');
+
+      const gui = new GUI();
+
+      // box has a height/tickness, so move two vertices per corner, each vertex shares 3 faces
+      gui.add(cornerY, 'A', -2, 2, 0.01).onChange(function (val) {
+        position.setY(4, val + height / 2);
+        position.setY(6, val - height / 2);
+        position.setY(8, val + height / 2);
+        position.setY(14, val - height / 2);
+        position.setY(21, val + height / 2);
+        position.setY(23, val - height / 2);
+        position.needsUpdate = true;
+      });
+
+      gui.add(cornerY, 'B', -2, 2, 0.01).onChange(function (val) {
+        position.setY(1, val + height / 2);
+        position.setY(3, val - height / 2);
+        position.setY(9, val + height / 2);
+        position.setY(15, val - height / 2);
+        position.setY(20, val + height / 2);
+        position.setY(22, val - height / 2);
+        position.needsUpdate = true;
+      });
+
+      gui.add(cornerY, 'C', -2, 2, 0.01).onChange(function (val) {
+        position.setY(5, val + height / 2);
+        position.setY(7, val - height / 2);
+        position.setY(10, val + height / 2);
+        position.setY(12, val - height / 2);
+        position.setY(16, val + height / 2);
+        position.setY(18, val - height / 2);
+        position.needsUpdate = true;
+      });
+
+      gui.add(cornerY, 'D', -2, 2, 0.01).onChange(function (val) {
+        position.setY(0, val + height / 2);
+        position.setY(2, val - height / 2);
+        position.setY(11, val + height / 2);
+        position.setY(17, val + height / 2);
+        position.setY(13, val - height / 2);
+        position.setY(19, val - height / 2);
+        position.needsUpdate = true;
+      });
+
+      // -----------------------------------------------------------------------------------
+
+      window.addEventListener('resize', resize, false);
+      function resize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      renderer.setAnimationLoop(loop);
+
+      function loop() {
+        controls.update();
+        renderer.render(scene, camera);
+      }
+    </script>
+  </body>
+</html>
